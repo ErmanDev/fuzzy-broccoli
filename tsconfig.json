@@ -3,8 +3,27 @@
   "compilerOptions": {
     "strict": true,
     "paths": {
+      "@firebase/auth":["./node_modules/@firebase/auth/dist/index.rn.d.ts"],
       "@/*": [
         "./*"
+      ],
+      "@models/*": [
+        "./src/models/*"
+      ],
+      "@views/*": [
+        "./src/views/*"
+      ],
+      "@controllers/*": [
+        "./src/controllers/*"
+      ],
+      "@routing/*": [
+        "./src/routing/*"
+      ],
+      "@services/*": [
+        "./src/services/*"
+      ],
+      "@utils/*": [
+        "./src/utils/*"
       ]
     }
   },
