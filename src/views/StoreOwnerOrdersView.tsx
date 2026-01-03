@@ -1,3 +1,4 @@
+import { Ionicons } from "@expo/vector-icons";
 import {
   ActivityIndicator,
   ScrollView,
@@ -8,7 +9,6 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Ionicons } from "@expo/vector-icons";
 import { useStoreOwnerOrdersController } from "../controllers/useStoreOwnerOrdersController";
 
 /**
@@ -291,19 +291,20 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   statusChip: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
     backgroundColor: "#ffffff",
     borderWidth: 1,
     borderColor: "#e5e7eb",
+    marginRight: 8,
   },
   statusChipActive: {
     backgroundColor: "#22c55e",
     borderColor: "#22c55e",
   },
   statusChipText: {
-    fontSize: 14,
+    fontSize: 12,
     color: "#6b7280",
     fontWeight: "500",
   },
@@ -341,9 +342,9 @@ const styles = StyleSheet.create({
     color: "#6b7280",
   },
   statusBadge: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 12,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
     backgroundColor: "#e5e7eb",
   },
   statusPending: {
@@ -451,7 +452,10 @@ const styles = StyleSheet.create({
   },
   emptyContainer: {
     alignItems: "center",
-    padding: 48,
+    padding: 30,
+    outlineWidth: 1,
+    outlineColor: "red",
+    outlineStyle: "solid",
   },
   emptyTitle: {
     fontSize: 18,

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { ActivityIndicator, Alert, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter, useLocalSearchParams } from "expo-router";
@@ -16,6 +16,8 @@ export default function CheckoutSuccess() {
   const [isProcessing, setIsProcessing] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [orderId, setOrderId] = useState<string | null>(null);
+  const hasProcessedRef = useRef(false);
+  const processedSessionIdRef = useRef<string | null>(null);
 
   useEffect(() => {
     const processPayment = async () => {
@@ -24,6 +26,15 @@ export default function CheckoutSuccess() {
         setIsProcessing(false);
         return;
       }
+
+      // Prevent duplicate processing of the same session
+      if (hasProcessedRef.current && processedSessionIdRef.current === session_id) {
+        return;
+      }
+
+      // Mark as processing
+      hasProcessedRef.current = true;
+      processedSessionIdRef.current = session_id;
 
       try {
         const result = await completeCheckout(session_id);
@@ -46,7 +57,8 @@ export default function CheckoutSuccess() {
     };
 
     processPayment();
-  }, [session_id, completeCheckout, router]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [session_id]);
 
   if (isProcessing) {
     return (

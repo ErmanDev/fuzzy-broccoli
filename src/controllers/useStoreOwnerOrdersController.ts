@@ -31,7 +31,13 @@ export function useStoreOwnerOrdersController() {
       try {
         const stores = await storesService.getStoresByOwner(user.id);
         if (stores.length > 0) {
-          setStoreId(stores[0].id); // Use first store if multiple
+          setStoreId((prevStoreId) => {
+            // Only update if storeId is different to prevent unnecessary re-fetches
+            if (prevStoreId !== stores[0].id) {
+              return stores[0].id;
+            }
+            return prevStoreId;
+          });
         } else {
           setError("No store found. Please create a store first.");
           setIsLoading(false);
@@ -44,7 +50,7 @@ export function useStoreOwnerOrdersController() {
     };
 
     fetchStore();
-  }, [user]);
+  }, [user?.id, user?.role]);
 
   // Fetch orders when storeId is available
   useEffect(() => {

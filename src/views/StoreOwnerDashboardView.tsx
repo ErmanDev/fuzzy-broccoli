@@ -1,3 +1,5 @@
+import { Ionicons } from "@expo/vector-icons";
+import { useEffect, useState } from "react";
 import {
   Image,
   ScrollView,
@@ -6,9 +8,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { useState, useEffect } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Ionicons } from "@expo/vector-icons";
 import { useStoreOwnerDashboardController } from "../controllers/useStoreOwnerDashboardController";
 
 /**
@@ -112,9 +112,12 @@ export function StoreOwnerDashboardView() {
                       order.status === "pending" && styles.statusPending,
                       order.status === "ready" && styles.statusReady,
                       order.status === "completed" && styles.statusCompleted,
+                      order.status === "cancelled" && styles.statusCancelled,
                     ]}
                   >
-                    <Text style={styles.statusText}>{order.status}</Text>
+                    <Text style={styles.statusText}>
+                      {order.status.toUpperCase()}
+                    </Text>
                   </View>
                 </View>
                 <Text style={styles.orderCustomer}>
@@ -262,6 +265,9 @@ const styles = StyleSheet.create({
   },
   statusCompleted: {
     backgroundColor: "#d1fae5",
+  },
+  statusCancelled: {
+    backgroundColor: "#fee2e2",
   },
   statusText: {
     fontSize: 12,

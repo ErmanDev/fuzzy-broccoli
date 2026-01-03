@@ -114,45 +114,6 @@ export function AdminProfileView() {
             </View>
             <Ionicons name="chevron-forward" size={20} color="#9ca3af" />
           </TouchableOpacity>
-
-          <TouchableOpacity style={styles.menuItem} activeOpacity={0.7}>
-            <Ionicons name="lock-closed-outline" size={24} color="#111827" />
-            <View style={styles.menuItemContent}>
-              <Text style={styles.menuItemTitle}>Change Password</Text>
-              <Text style={styles.menuItemSubtitle}>Update your password</Text>
-            </View>
-            <Ionicons name="chevron-forward" size={20} color="#9ca3af" />
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.menuItem} activeOpacity={0.7}>
-            <Ionicons name="notifications-outline" size={24} color="#111827" />
-            <View style={styles.menuItemContent}>
-              <Text style={styles.menuItemTitle}>Notifications</Text>
-              <Text style={styles.menuItemSubtitle}>Manage notification preferences</Text>
-            </View>
-            <Ionicons name="chevron-forward" size={20} color="#9ca3af" />
-          </TouchableOpacity>
-        </View>
-
-        <View style={styles.menuSection}>
-          <Text style={styles.sectionTitle}>System</Text>
-          <TouchableOpacity style={styles.menuItem} activeOpacity={0.7}>
-            <Ionicons name="settings-outline" size={24} color="#111827" />
-            <View style={styles.menuItemContent}>
-              <Text style={styles.menuItemTitle}>System Settings</Text>
-              <Text style={styles.menuItemSubtitle}>Configure system-wide settings</Text>
-            </View>
-            <Ionicons name="chevron-forward" size={20} color="#9ca3af" />
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.menuItem} activeOpacity={0.7}>
-            <Ionicons name="analytics-outline" size={24} color="#111827" />
-            <View style={styles.menuItemContent}>
-              <Text style={styles.menuItemTitle}>System Analytics</Text>
-              <Text style={styles.menuItemSubtitle}>View system-wide analytics</Text>
-            </View>
-            <Ionicons name="chevron-forward" size={20} color="#9ca3af" />
-          </TouchableOpacity>
         </View>
 
         <View style={styles.menuSection}>

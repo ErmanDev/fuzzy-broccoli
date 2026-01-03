@@ -1,9 +1,11 @@
 import {
+  Image,
   ScrollView,
   StyleSheet,
   Text,
   View,
 } from "react-native";
+import { useState, useEffect } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useAdminDashboardController } from "../controllers/useAdminDashboardController";
@@ -15,6 +17,14 @@ import { useAdminDashboardController } from "../controllers/useAdminDashboardCon
  */
 export function AdminDashboardView() {
   const { user, stats } = useAdminDashboardController();
+  const [avatarUpdateKey, setAvatarUpdateKey] = useState(0);
+
+  // Update avatar key when user avatar changes
+  useEffect(() => {
+    if (user?.avatar) {
+      setAvatarUpdateKey(prev => prev + 1);
+    }
+  }, [user?.avatar]);
 
   const getInitials = (name: string) => {
     return name
@@ -38,9 +48,23 @@ export function AdminDashboardView() {
             <Text style={styles.name}>{user?.name || "Admin"}</Text>
           </View>
           <View style={styles.avatar}>
-            <Text style={styles.avatarText}>
-              {user?.name ? getInitials(user.name) : "AD"}
-            </Text>
+            {user?.avatar ? (
+              <Image
+                key={`${user.avatar}-${user.id}-${avatarUpdateKey}`}
+                source={{ 
+                  uri: `${user.avatar}${user.avatar.includes('?') ? '&' : '?'}v=${avatarUpdateKey}`
+                }}
+                style={styles.avatarImage}
+                resizeMode="cover"
+                onError={(error) => {
+                  console.error("Avatar image load error:", error);
+                }}
+              />
+            ) : (
+              <Text style={styles.avatarText}>
+                {user?.name ? getInitials(user.name) : "AD"}
+              </Text>
+            )}
           </View>
         </View>
 
@@ -121,6 +145,12 @@ const styles = StyleSheet.create({
     backgroundColor: "#8b5cf6",
     alignItems: "center",
     justifyContent: "center",
+  },
+  avatarImage: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: "#8b5cf6",
   },
   avatarText: {
     fontSize: 20,
