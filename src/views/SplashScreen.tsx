@@ -1,6 +1,5 @@
-import { Ionicons } from "@expo/vector-icons";
 import { useEffect, useRef } from "react";
-import { Animated, StyleSheet, Text, View } from "react-native";
+import { Animated, Image, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { useAuth } from "../contexts/AuthContext";
@@ -52,7 +51,11 @@ export function SplashScreen() {
       <View style={styles.content}>
         <View style={styles.brandContainer}>
           <Animated.View style={[styles.brandIcon, { opacity: fadeAnim }]}>
-            <Ionicons name="storefront" size={50} color="#22c55e" />
+            <Image
+              source={require("../../assets/images/icon.png")}
+              style={styles.logoImage}
+              resizeMode="contain"
+            />
           </Animated.View>
           <Text style={styles.brandName}>E-GROCERY</Text>
           <Text style={styles.brandTagline}>Fresh groceries, ready for pickup</Text>
@@ -77,15 +80,15 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   brandIcon: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    backgroundColor: "#ecfdf3",
+    width: 120,
+    height: 120,
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 24,
-    borderWidth: 4,
-    borderColor: "#22c55e",
+  },
+  logoImage: {
+    width: 120,
+    height: 120,
   },
   brandName: {
     fontSize: 42,

@@ -40,7 +40,13 @@ export const storesService = {
   },
 
   // Get store by ID
-  async getStoreById(storeId: string): Promise<(Store & { status?: string; ownerId?: string }) | null> {
+  async getStoreById(storeId: string): Promise<(Store & { 
+    status?: string; 
+    ownerId?: string;
+    description?: string;
+    storeHours?: any;
+    contactInfo?: any;
+  }) | null> {
     try {
       const storeDoc = await getDoc(doc(db, STORES_COLLECTION, storeId));
       if (storeDoc.exists()) {
@@ -53,6 +59,9 @@ export const storesService = {
           pickupTime: data.pickupTime,
           status: data.status,
           ownerId: data.ownerId,
+          description: data.description,
+          storeHours: data.storeHours,
+          contactInfo: data.contactInfo,
         };
       }
       return null;
@@ -63,20 +72,32 @@ export const storesService = {
   },
 
   // Get stores by owner
-  async getStoresByOwner(ownerId: string): Promise<Store[]> {
+  async getStoresByOwner(ownerId: string): Promise<(Store & {
+    status?: string;
+    description?: string;
+    storeHours?: any;
+    contactInfo?: any;
+  })[]> {
     try {
       const q = query(
         collection(db, STORES_COLLECTION),
         where('ownerId', '==', ownerId)
       );
       const querySnapshot = await getDocs(q);
-      return querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        name: doc.data().name,
-        logo: doc.data().logo,
-        rating: doc.data().rating,
-        pickupTime: doc.data().pickupTime,
-      })) as Store[];
+      return querySnapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          name: data.name,
+          logo: data.logo,
+          rating: data.rating,
+          pickupTime: data.pickupTime,
+          status: data.status,
+          description: data.description,
+          storeHours: data.storeHours,
+          contactInfo: data.contactInfo,
+        };
+      });
     } catch (error) {
       console.error('Error getting stores by owner:', error);
       throw error;

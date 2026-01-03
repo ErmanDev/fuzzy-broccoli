@@ -1,4 +1,5 @@
 import {
+  ActivityIndicator,
   ScrollView,
   StyleSheet,
   Text,
@@ -17,7 +18,7 @@ import { useStoreOwnerSettingsController } from "../controllers/useStoreOwnerSet
  * Business logic is handled by the controller hook
  */
 export function StoreOwnerSettingsView() {
-  const { settings, handleUpdateStoreHours } = useStoreOwnerSettingsController();
+  const { settings, isLoading, error, handleUpdateStoreHours } = useStoreOwnerSettingsController();
 
   const days = [
     { key: "monday", label: "Monday" },
@@ -28,6 +29,28 @@ export function StoreOwnerSettingsView() {
     { key: "saturday", label: "Saturday" },
     { key: "sunday", label: "Sunday" },
   ] as const;
+
+  if (isLoading) {
+    return (
+      <SafeAreaView style={styles.safeArea}>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#22c55e" />
+          <Text style={styles.loadingText}>Loading store settings...</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  if (error) {
+    return (
+      <SafeAreaView style={styles.safeArea}>
+        <View style={styles.errorContainer}>
+          <Ionicons name="alert-circle-outline" size={48} color="#ef4444" />
+          <Text style={styles.errorText}>{error}</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -287,6 +310,29 @@ const styles = StyleSheet.create({
     color: "#ffffff",
     fontSize: 16,
     fontWeight: "700",
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 20,
+  },
+  loadingText: {
+    marginTop: 16,
+    fontSize: 16,
+    color: "#6b7280",
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 20,
+  },
+  errorText: {
+    marginTop: 16,
+    fontSize: 16,
+    color: "#ef4444",
+    textAlign: "center",
   },
 });
 

@@ -3,9 +3,11 @@ import {
   doc,
   getDoc,
   getDocs,
+  onSnapshot,
   query,
   serverTimestamp,
   setDoc,
+  Unsubscribe,
   updateDoc,
   where,
 } from 'firebase/firestore';
@@ -130,17 +132,80 @@ export const ordersService = {
           customerPhone: data.customerPhone,
           customerEmail: data.customerEmail,
           notes: data.notes,
-        } as StoreOwnerOrder;
+          createdAt: data.createdAt?.toDate?.().getTime() || data.createdAt,
+        } as StoreOwnerOrder & { createdAt?: number };
       });
-      // Sort by orderDate descending in memory to avoid requiring a composite index
+      // Sort by createdAt (most accurate) or orderDate descending - latest first
       return orders.sort((a, b) => {
-        const dateA = new Date(a.orderDate || 0).getTime();
-        const dateB = new Date(b.orderDate || 0).getTime();
-        return dateB - dateA; // descending order
-      });
+        // Prefer createdAt timestamp if available (more accurate)
+        const timeA = a.createdAt || new Date(a.orderDate || 0).getTime();
+        const timeB = b.createdAt || new Date(b.orderDate || 0).getTime();
+        return timeB - timeA; // descending order (newest first)
+      }) as StoreOwnerOrder[];
     } catch (error) {
       console.error('Error getting store orders:', error);
       throw error;
+    }
+  },
+
+  // Subscribe to store orders in real-time
+  subscribeToStoreOrders(
+    storeId: string,
+    callback: (orders: StoreOwnerOrder[]) => void,
+    onError?: (error: Error) => void
+  ): Unsubscribe {
+    try {
+      const q = query(
+        collection(db, ORDERS_COLLECTION),
+        where('storeId', '==', storeId)
+      );
+
+      return onSnapshot(
+        q,
+        (querySnapshot) => {
+          const orders = querySnapshot.docs.map(doc => {
+            const data = doc.data();
+            return {
+              id: doc.id,
+              storeId: data.storeId,
+              storeName: data.storeName,
+              items: data.items,
+              total: data.total,
+              status: data.status,
+              orderDate: data.orderDate?.toDate?.().toISOString().split('T')[0] || data.orderDate,
+              pickupTime: data.pickupTime,
+              customerName: data.customerName,
+              customerPhone: data.customerPhone,
+              customerEmail: data.customerEmail,
+              notes: data.notes,
+              createdAt: data.createdAt?.toDate?.().getTime() || data.createdAt,
+            } as StoreOwnerOrder & { createdAt?: number };
+          });
+          
+          // Sort by createdAt (most accurate) or orderDate descending - latest first
+          const sortedOrders = orders.sort((a, b) => {
+            // Prefer createdAt timestamp if available (more accurate)
+            const timeA = a.createdAt || new Date(a.orderDate || 0).getTime();
+            const timeB = b.createdAt || new Date(b.orderDate || 0).getTime();
+            return timeB - timeA; // descending order (newest first)
+          });
+          
+          callback(sortedOrders as StoreOwnerOrder[]);
+        },
+        (error) => {
+          console.error('Error in store orders subscription:', error);
+          if (onError) {
+            onError(error);
+          }
+        }
+      );
+    } catch (error) {
+      console.error('Error setting up store orders subscription:', error);
+      if (onError && error instanceof Error) {
+        onError(error);
+      }
+      // Return a no-op unsubscribe function
+      return () => {};
     }
   },
 

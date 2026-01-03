@@ -52,27 +52,34 @@ export function useStoreOwnerOrdersController() {
     fetchStore();
   }, [user?.id, user?.role]);
 
-  // Fetch orders when storeId is available
+  // Subscribe to orders in real-time when storeId is available
   useEffect(() => {
-    const fetchOrders = async () => {
-      if (!storeId) {
-        return;
-      }
+    if (!storeId) {
+      return;
+    }
 
-      try {
-        setIsLoading(true);
-        setError(null);
-        const storeOrders = await ordersService.getStoreOrders(storeId);
+    setIsLoading(true);
+    setError(null);
+
+    // Set up real-time listener for orders
+    const unsubscribe = ordersService.subscribeToStoreOrders(
+      storeId,
+      (storeOrders) => {
         setOrders(storeOrders);
-      } catch (err: any) {
-        console.error("Error fetching orders:", err);
+        setIsLoading(false);
+        setError(null);
+      },
+      (err) => {
+        console.error("Error in orders subscription:", err);
         setError(String(err?.message || err || "Failed to load orders"));
-      } finally {
         setIsLoading(false);
       }
-    };
+    );
 
-    fetchOrders();
+    // Cleanup subscription on unmount or when storeId changes
+    return () => {
+      unsubscribe();
+    };
   }, [storeId]);
 
   const filteredOrders = useMemo(() => {
@@ -96,7 +103,12 @@ export function useStoreOwnerOrdersController() {
     }
 
     return filtered.sort(
-      (a, b) => new Date(b.orderDate || 0).getTime() - new Date(a.orderDate || 0).getTime()
+      (a, b) => {
+        // Prefer createdAt timestamp if available (more accurate)
+        const timeA = (a as any).createdAt || new Date(a.orderDate || 0).getTime();
+        const timeB = (b as any).createdAt || new Date(b.orderDate || 0).getTime();
+        return timeB - timeA; // descending order (newest first)
+      }
     );
   }, [orders, selectedStatus, searchQuery]);
 

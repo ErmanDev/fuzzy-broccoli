@@ -1,6 +1,8 @@
 import { Ionicons } from "@expo/vector-icons";
+import { useState } from "react";
 import {
   ActivityIndicator,
+  Modal,
   ScrollView,
   StyleSheet,
   Text,
@@ -29,6 +31,8 @@ export function StoreOwnerOrdersView() {
     handleSearchChange,
     handleUpdateOrderStatus,
   } = useStoreOwnerOrdersController();
+
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -70,36 +74,75 @@ export function StoreOwnerOrdersView() {
           />
         </View>
 
-        {/* Status Filter */}
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.statusRow}
-        >
-          {statusOptions.map((status) => {
-            const isActive = status === selectedStatus;
-            return (
-              <TouchableOpacity
-                key={status}
-                style={[
-                  styles.statusChip,
-                  isActive && styles.statusChipActive,
-                ]}
-                onPress={() => handleStatusChange(status)}
-                activeOpacity={0.8}
-              >
-                <Text
-                  style={[
-                    styles.statusChipText,
-                    isActive && styles.statusChipTextActive,
-                  ]}
-                >
-                  {status.charAt(0).toUpperCase() + status.slice(1)}
-                </Text>
-              </TouchableOpacity>
-            );
-          })}
-        </ScrollView>
+        {/* Status Filter Dropdown */}
+        <View style={styles.filterContainer}>
+          <TouchableOpacity
+            style={styles.dropdownButton}
+            onPress={() => setIsDropdownOpen(true)}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.dropdownButtonText}>
+              {selectedStatus.charAt(0).toUpperCase() + selectedStatus.slice(1)}
+            </Text>
+            <Ionicons name="chevron-down" size={20} color="#6b7280" />
+          </TouchableOpacity>
+
+          <Modal
+            visible={isDropdownOpen}
+            transparent
+            animationType="fade"
+            onRequestClose={() => setIsDropdownOpen(false)}
+          >
+            <TouchableOpacity
+              style={styles.modalOverlay}
+              activeOpacity={1}
+              onPress={() => setIsDropdownOpen(false)}
+            >
+              <View style={styles.dropdownModal}>
+                <View style={styles.dropdownHeader}>
+                  <Text style={styles.dropdownTitle}>Filter by Status</Text>
+                  <TouchableOpacity
+                    onPress={() => setIsDropdownOpen(false)}
+                    activeOpacity={0.8}
+                  >
+                    <Ionicons name="close" size={24} color="#6b7280" />
+                  </TouchableOpacity>
+                </View>
+                <ScrollView style={styles.dropdownList}>
+                  {statusOptions.map((status) => {
+                    const isActive = status === selectedStatus;
+                    return (
+                      <TouchableOpacity
+                        key={status}
+                        style={[
+                          styles.dropdownItem,
+                          isActive && styles.dropdownItemActive,
+                        ]}
+                        onPress={() => {
+                          handleStatusChange(status);
+                          setIsDropdownOpen(false);
+                        }}
+                        activeOpacity={0.8}
+                      >
+                        <Text
+                          style={[
+                            styles.dropdownItemText,
+                            isActive && styles.dropdownItemTextActive,
+                          ]}
+                        >
+                          {status.charAt(0).toUpperCase() + status.slice(1)}
+                        </Text>
+                        {isActive && (
+                          <Ionicons name="checkmark" size={20} color="#22c55e" />
+                        )}
+                      </TouchableOpacity>
+                    );
+                  })}
+                </ScrollView>
+              </View>
+            </TouchableOpacity>
+          </Modal>
+        </View>
 
         {/* Error Message */}
         {error && (
@@ -285,31 +328,79 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#111827",
   },
-  statusRow: {
+  filterContainer: {
     paddingHorizontal: 20,
     paddingBottom: 16,
-    gap: 8,
   },
-  statusChip: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 16,
+  dropdownButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
     backgroundColor: "#ffffff",
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
     borderWidth: 1,
     borderColor: "#e5e7eb",
-    marginRight: 8,
   },
-  statusChipActive: {
-    backgroundColor: "#22c55e",
-    borderColor: "#22c55e",
-  },
-  statusChipText: {
-    fontSize: 12,
-    color: "#6b7280",
+  dropdownButtonText: {
+    fontSize: 16,
+    color: "#111827",
     fontWeight: "500",
   },
-  statusChipTextActive: {
-    color: "#ffffff",
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  dropdownModal: {
+    backgroundColor: "#ffffff",
+    borderRadius: 16,
+    width: "80%",
+    maxWidth: 400,
+    maxHeight: "70%",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  dropdownHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: "#e5e7eb",
+  },
+  dropdownTitle: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#111827",
+  },
+  dropdownList: {
+    maxHeight: 300,
+  },
+  dropdownItem: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    borderBottomWidth: 1,
+    borderBottomColor: "#f3f4f6",
+  },
+  dropdownItemActive: {
+    backgroundColor: "#f0fdf4",
+  },
+  dropdownItemText: {
+    fontSize: 16,
+    color: "#111827",
+  },
+  dropdownItemTextActive: {
+    color: "#22c55e",
+    fontWeight: "600",
   },
   scrollContent: {
     padding: 20,
@@ -453,9 +544,7 @@ const styles = StyleSheet.create({
   emptyContainer: {
     alignItems: "center",
     padding: 30,
-    outlineWidth: 1,
-    outlineColor: "red",
-    outlineStyle: "solid",
+ 
   },
   emptyTitle: {
     fontSize: 18,

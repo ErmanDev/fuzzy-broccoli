@@ -61,9 +61,9 @@ export function AdminDashboardView() {
                 }}
               />
             ) : (
-              <Text style={styles.avatarText}>
-                {user?.name ? getInitials(user.name) : "AD"}
-              </Text>
+            <Text style={styles.avatarText}>
+              {user?.name ? getInitials(user.name) : "AD"}
+            </Text>
             )}
           </View>
         </View>

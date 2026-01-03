@@ -40,30 +40,44 @@ export function useStoreOwnerDashboardController() {
     fetchStore();
   }, [user]);
 
-  // Fetch orders and products when storeId is available
+  // Subscribe to orders in real-time and fetch products when storeId is available
   useEffect(() => {
-    const fetchData = async () => {
-      if (!storeId) {
-        setIsLoading(false);
-        return;
-      }
+    if (!storeId) {
+      setIsLoading(false);
+      return;
+    }
 
+    setIsLoading(true);
+
+    // Set up real-time listener for orders
+    const unsubscribeOrders = ordersService.subscribeToStoreOrders(
+      storeId,
+      (storeOrders) => {
+        setOrders(storeOrders);
+      },
+      (err) => {
+        console.error("Error in orders subscription:", err);
+      }
+    );
+
+    // Fetch products (can be made real-time later if needed)
+    const fetchProducts = async () => {
       try {
-        setIsLoading(true);
-        const [fetchedOrders, fetchedProducts] = await Promise.all([
-          ordersService.getStoreOrders(storeId),
-          productsService.getStoreOwnerProducts(storeId),
-        ]);
-        setOrders(fetchedOrders);
+        const fetchedProducts = await productsService.getStoreOwnerProducts(storeId);
         setProducts(fetchedProducts);
       } catch (err: any) {
-        console.error("Error fetching dashboard data:", err);
+        console.error("Error fetching products:", err);
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchData();
+    fetchProducts();
+
+    // Cleanup subscription on unmount or when storeId changes
+    return () => {
+      unsubscribeOrders();
+    };
   }, [storeId]);
 
   const stats = useMemo(() => {
@@ -96,9 +110,14 @@ export function useStoreOwnerDashboardController() {
   }, [orders, products]);
 
   const recentOrders = useMemo(() => {
-    return orders.slice(0, 5).sort(
-      (a, b) => new Date(b.orderDate || 0).getTime() - new Date(a.orderDate || 0).getTime()
-    );
+    // Sort all orders first (newest first), then take top 5
+    const sorted = [...orders].sort((a, b) => {
+      // Prefer createdAt timestamp if available (more accurate)
+      const timeA = (a as any).createdAt || new Date(a.orderDate || 0).getTime();
+      const timeB = (b as any).createdAt || new Date(b.orderDate || 0).getTime();
+      return timeB - timeA; // descending order (newest first)
+    });
+    return sorted.slice(0, 5);
   }, [orders]);
 
   return {
